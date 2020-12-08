@@ -216,3 +216,6 @@ Policies:-
             ]
     }
 
+Architecture:
+
+![alt text](https://github.com/Abhishek010397/LambdaEC2CloudWatch/blob/master/Lambda.jpg)
