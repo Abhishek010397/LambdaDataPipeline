@@ -88,99 +88,105 @@ Note: Cron expressions are evaluated in UTC. Be sure to adjust the expression fo
     In step 10, under Rule definition, enter a Name like "StartEC2Instances", and optionally enter a Description like "Starts EC2 instances every morning at 6     AM."
     
     
-Lambda Cross Account S3 File Upload
+# Lambda Cross Account S3 File Upload
+
 
 Attach the policy to Source S3 Bucket of the Source Account
 
 The Bucket policy set up in the source AWS account. Do NOT forget to change the account number and bucket name in the below policy.
 
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "DelegateS3Access",
-            "Effect": "Allow",
-            "Principal": {"AWS": "<<Account-Number-of-source-a/c>>"},
-            "Action": ["s3:ListBucket","s3:GetObject"],
-            "Resource": [
-                "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE/*",
-                "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE"
-            ]
-        }
-    ]
-}
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "DelegateS3Access",
+                "Effect": "Allow",
+                "Principal": {"AWS": "<<Account-Number-of-source-a/c>>"},
+                "Action": ["s3:ListBucket","s3:GetObject"],
+                "Resource": [
+                    "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE/*",
+                    "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE"
+                ]
+            }
+        ]
+    }
+            
+Create a Lambda function as :-
 
-Create a Lambda function
-GIve A Name To The Lambda Function.
-Head-On to IAM.
-Create A role For Lambda Function.
-Attach Policies to the respective role.
+     Give A Name To The Lambda Function.
+     Head-On to IAM.
+     Create A role For Lambda Function.
+     Attach Policies to the respective role.
  
 
- 
-   Policies:-
+Policies:-
 
 1.S3 Full-Access
-{
-    "Version": "2012-10-17",
-    "Statement": [
+     
         {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": "*"
-        }
-    ]
-}
-
-2.Lambda-Basic Execution Role
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "logs:CreateLogGroup",
-            "Resource": "arn:aws:logs:us-east-1:<<Account-Number-Source:*>>"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": [
-               "arn:aws:logs:us-east-1:<<Source-A/c-Number>>:log-group:/aws/lambda/LambdaBucketS3:*"
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "s3:*",
+                    "Resource": "*"
+                }
             ]
         }
-    ]
-}
-
+     
+2.Lambda-Basic Execution Role
+           
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "logs:CreateLogGroup",
+                    "Resource": "arn:aws:logs:us-east-1:<<Account-Number-Source:*>>"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                    ],
+                    "Resource": [
+                        "arn:aws:logs:us-east-1:<<Source-A/c-Number>>:log-group:/aws/lambda/LambdaBucketS3:*"
+                    ]
+                }
+            ]
+        }
+    
 3. Create An Inline Policy:-
-{
-    "Version": "2012-10-17",
-    "Statement": {
-        "Effect": "Allow",
-        "Action": "sts:AssumeRole",
-        "Resource": "arn:aws:iam::<<Destination-A/c-Number>>:role/<<Name-of-Dest-A/c-Role>>"
-    }
-}
-
+                  
+        {
+                "Version": "2012-10-17",
+                "Statement": 
+                    {
+                        "Effect": "Allow",
+                        "Action": "sts:AssumeRole",
+                        "Resource": "arn:aws:iam::<<Destination-A/c-Number>>:role/<<Name-of-Dest-A/c-Role>>"
+                    }
+        }
 
 Now Edit the Trust-Relationship of the respective role in Source A/c
 
 Attach a Assume-Role-Policy as:-
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com",
-        "AWS": "arn:aws:iam::<<Dest-A/c-Number>>:role/<<Dest-A/c-Role-Name>>"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
+
+
+        {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                        "Service": "lambda.amazonaws.com",
+                        "AWS": "arn:aws:iam::<<Dest-A/c-Number>>:role/<<Dest-A/c-Role-Name>>"
+                    },
+                    "Action": "sts:AssumeRole"
+                    }
+                ]
+        }
 
 
 Head On to the Destination Account
@@ -197,13 +203,16 @@ Head On to the Destination Account
 Policies:-
 
 1.S3 Full Access
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": "*"
-        }
-    ]
-}
+
+    {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "PolicyForAllowUpload",
+                    "Effect": "Allow",
+                    "Action": "s3:PutObject",
+                    "Resource": "arn:aws:s3:::<<Dest-bucket-name>>/*"
+                }
+            ]
+    }
+
