@@ -216,6 +216,25 @@ Policies:-
             ]
     }
 
+EC2 Instance Profile Role
+
+1.EC2S3PolicyRole
+
+    {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "S3Access",
+                    "Effect": "Allow",
+                    "Action": "s3:*",
+                    "Resource": [
+                    "arn:aws:s3:::lambdabucket-cerebrone"
+                    ]
+                }
+            ]
+    }
+
+
 Architecture:
 
 ![alt text](https://github.com/Abhishek010397/LambdaEC2CloudWatch/blob/master/Lambda.jpg)
