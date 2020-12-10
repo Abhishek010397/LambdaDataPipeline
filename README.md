@@ -237,4 +237,4 @@ EC2 Instance Profile Role
 
 Architecture:
 
-![alt text](https://github.com/Abhishek010397/LambdaEC2CloudWatch/blob/master/Architecture.jpg)
+![alt text](https://github.com/Abhishek010397/LambdaEC2CloudWatch/blob/master/Diagram.jpg)
