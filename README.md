@@ -235,6 +235,50 @@ EC2 Instance Profile Role
             ]
         }
 
+Convert Python Script to .exe File
+
+Step 1:
+Install the library pyinstaller in Windows Server.
+
+           python -m pip install pyinstaller
+           
+           
+Step 2:
+Go into the directory where your ‘.py’ file is located.
+
+Step 3:
+Press shift⇧ button and simultaneously right click at the same location. You will get below box.
+
+
+Step 4:
+Click on ‘Open PowerShell window here’.
+
+Step 5:
+Type the command given below in that PowerShell window.
+
+          .\pyinstaller --onefile -w 'filename.py'
+
+Step 6:
+After typing the command ‘Hit the Enter’.
+It will take some time to finish the process depending on the size of the file
+
+Step 7:
+See the directory it should contain a dist folder.
+
+Next Comes the Task Scheduler to run the python code as a cron job
+Windows Task Scheduler is a component that gives the ability to schedule and automate tasks in Windows by running scripts or programs automatically at a given moment.
+
+Steps:-
+
+1.Go to Task Scheduler
+2.Create Task
+3.Give Name to your Task
+4.Click on the Actions and specify your python.exe file path (can be found by 'where pyhton' on Command Prompt)
+5.Paste the path of your python code at the start checkbox.
+6.Give the name of your python file in the arguments section .
+7.Specify triggers based on the time when you want to start and stop your pyhton executable file.
+
+
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
