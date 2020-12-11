@@ -1,21 +1,27 @@
+
+import os
 import boto3
-from botocore.exceptions import NoCredentialsError
+
+s3_resource = boto3.resource("s3", region_name="us-east-1")
 
 
-def upload_to_aws(file_s3, BUCKET_NAME, s3_file):
-
-    s3 = boto3.client('s3')
-
+def upload_objects():
     try:
-        s3.upload_file(file_s3, BUCKET_NAME, s3_file)
-        print("Upload Successful")
-        return True
-    except FileNotFoundError:
-        print("The file was not found")
-        return False
-    except NoCredentialsError:
-        print("Credentials not available")
-        return False
+        bucket_name = "<<Bucket-Name>>"
+        root_path = 'C:/<<Path-of-the-folder>>'
+
+        my_bucket = s3_resource.Bucket(bucket_name)
+
+        for path, subdirs, files in os.walk(root_path):
+            path = path.replace("\\", "/")
+            directory_name = path.replace(root_path, "test_folder")
+            for file in files:
+                my_bucket.upload_file(os.path.join(
+                    path, file), directory_name+'/'+file)
+
+    except Exception as err:
+        print(err)
 
 
-uploaded = upload_to_aws('./vpc.tf', 'lambdabucket-cerebrone', 's3_file')
+if __name__ == '__main__':
+    upload_objects()
