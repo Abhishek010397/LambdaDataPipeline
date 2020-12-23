@@ -3,8 +3,8 @@ import os
 import json
 from datetime import datetime, timedelta
 ''' Global Variable defined for Bucket, Object and Filenames '''
-SRC_BUCKET_NAME = 'lambdabucket-cerebrone'
-DST_BUCKET_NAME = 'mydestination-bucket03'
+SRC_BUCKET_NAME = 'src-bucket-name'
+DST_BUCKET_NAME = 'dest-bucket-name'
 
 def download_s3_file(myfile):
     s3_source = boto3.client('s3')
@@ -19,7 +19,7 @@ def download_s3_file(myfile):
 def upload_s3_file(myfile):
     sts = boto3.client('sts')
     sts_result = sts.assume_role(
-        RoleArn='arn:aws:iam::984143593165:role/CrossIAM', RoleSessionName='session')
+        RoleArn='arn:aws:iam::account-number-dest:role/role-name-in-dest', RoleSessionName='session')
     s3_dest = boto3.client('s3', aws_access_key_id=sts_result['Credentials']['AccessKeyId'],
                            aws_secret_access_key=sts_result['Credentials']['SecretAccessKey'],
                            aws_session_token=sts_result['Credentials']['SessionToken'])
