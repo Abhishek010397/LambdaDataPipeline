@@ -273,7 +273,7 @@ Steps:-
     1.Go to Task Scheduler
     2.Create Task
     3.Give Name to your Task
-    4.Click on the Actions and specify your python.exe file path (can be found by 'where pyhton' on Command Prompt)
+    4.Click on the Actions and specify your python.exe file path (can be found by 'where python' on Command Prompt)
     5.Paste the path of your python code at the start checkbox.
     6.Give the name of your python file in the arguments section .
     7.Specify triggers based on the time when you want to start and stop your pyhton executable file.
