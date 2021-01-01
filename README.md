@@ -96,20 +96,31 @@ Attach the policy to Source S3 Bucket of the Source Account
 The Bucket policy set up in the source AWS account. Do NOT forget to change the account number and bucket name in the below policy.
 
     {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "DelegateS3Access",
-                "Effect": "Allow",
-                "Principal": {"AWS": "<<Account-Number-of-source-a/c>>"},
-                "Action": ["s3:ListBucket","s3:GetObject"],
-                "Resource": [
-                    "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE/*",
-                    "arn:aws:s3:::YOUR-SOURCE-BUCKET-NAME-HERE"
-                ]
-            }
-        ]
-    }
+	"Version": "2012-10-17",
+	"Statement": [{
+			"Sid": "DelegateS3Access",
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": "arn:aws:iam::<<root-a/c-number>>:root"
+			},
+			"Action": [
+				"s3:ListBucket",
+				"s3:GetObject"
+			],
+			"Resource": [
+				"arn:aws:s3:::bucket-name/*.extension-to-be allowed",
+				"arn:aws:s3:::bucket-name"
+			]
+		},
+		{
+			"Sid": "S3AllowedExtensions",
+			"Effect": "Deny",
+			"Principal": "_",
+			"Action": "s3:PutObject",
+			"NotResource": "arn:aws:s3:::bucket-name/*.extensions-to-be-allowed"
+		}
+	]
+}
             
 Create a Lambda function as :-
 
