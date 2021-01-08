@@ -293,4 +293,4 @@ Steps:-
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
-![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/LambdaDataPipeline.jpg)
+![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Lambda.png)
