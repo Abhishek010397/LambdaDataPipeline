@@ -301,7 +301,7 @@ To provide Administrative permission to the Task scheduler
 
 To run Shell-Script as a Cron job in Linux Machine:
 
-    1.Make a Directory(Best Practice),give it a name
+    1. Make a Directory(Best Practice),give it a name
     2. Go to the directory and create a .sh file as:- vi/vim scripts.sh
     3. Change the permission of the file as:- chmod +x filename.sh
     4. Next is to edit the crontab of Linux Machine as:- sudo crontab -e
