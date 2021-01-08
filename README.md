@@ -288,8 +288,24 @@ Steps:-
     5.Paste the path of your python code at the start checkbox.
     6.Give the name of your python file in the arguments section .
     7.Specify triggers based on the time when you want to start and stop your pyhton executable file.
+    
+To provide Administrative permission to the Task scheduler
+
+    1.Open Command Prompt As Administartor
+    2.Run the following Command
+                 
+		 SCHTASKS /Create /TN "Name" /SC (HOUR/Minute Of your choice) /MO 5(5 denotes no. of minutes) /TR:Path/to/the/loggedin/User/filename.bat(C:\User\Abhi)\f.bat) /RU Username
+		 /RP Password /RL HIGHEST(to run the script with higher privilleges)
+    
 
 
+To run Shell-Script as a Cron job in Linux Machine:
+
+    1.Make a Directory(Best Practice),give it a name
+    2. Go to the directory and create a .sh file as:- vi/vim scripts.sh
+    3. Change the permission of the file as:- chmod +x filename.sh
+    4. Next is to edit the crontab of Linux Machine as:- sudo crontab -e
+    5. Provide the scheduling time as:- */5 * * * * path/to/filename.sh (5 denotes no. of minutes)
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
