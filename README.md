@@ -115,7 +115,7 @@ The Bucket policy set up in the source AWS account. Do NOT forget to change the 
 		{
 			"Sid": "S3AllowedExtensions",
 			"Effect": "Deny",
-			"Principal": "_",
+			"Principal": "*",
 			"Action": "s3:PutObject",
 			"NotResource": "arn:aws:s3:::bucket-name/*.extensions-to-be-allowed"
 		}
