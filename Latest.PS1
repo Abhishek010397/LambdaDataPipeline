@@ -1,0 +1,1 @@
+(gci c:\temp | ? { $_.PSIsContainer } | sort CreationTime)[-1] | Select Name | Select-String "Name"
