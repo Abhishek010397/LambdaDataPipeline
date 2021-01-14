@@ -305,6 +305,14 @@ To provide Administrative permission to the Task scheduler
     
                  Disable-ScheduledTask -TaskName "SystemScan"
 
+To schedule the PowerShell script, specify the following parameters in Task Scheduler Create Basic Task Action tab:
+
+    1.Action: Start a program
+    2.Program\script: powershell
+    3.Add arguments (optional): -File [Specify the file path to the script here]
+
+Click “OK” to save your changes.
+
 
 To run Shell-Script as a Cron job in Linux Machine:
 
