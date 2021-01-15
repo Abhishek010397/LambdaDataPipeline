@@ -292,6 +292,8 @@ Steps:-
 To provide Administrative permission to the Task scheduler
 
    1.Open Command Prompt As Administartor
+   
+   
    2.Run the following Command
                  
 		 SCHTASKS /Create /TN "Name" /SC (HOUR/Minute Of your choice) /MO 5(5 denotes no. of minutes) /TR:Path/to/the/loggedin/User/filename.bat(C:\User\Abhi)\f.bat) /RU Username
