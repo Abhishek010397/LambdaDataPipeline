@@ -1,8 +1,48 @@
 stages:
-  - execute_pipeline
+  - aws_login
+  - run_script_promote
 
-pipeline_execution:
-  stage: execute_pipeline
-  image: gitlab-runner-image/tag:latest
+aws_server_login:
+  image: runner-image/tags:latest
+  stage: aws_login
   script:
-    - curl -X POST -F token=$TOKEN -F ref=$REF "variables[S3_Upload]=$variable"  https://gitlab.com/api/v4/projects/10098/trigger/pipeline 
+    - pip install awscli
+    - export AWS_DEFAULT_REGION
+    - AWS_STS_REGIONAL_ENDPOINTS=regional
+    - export AWS_STS_REGIONAL_ENDPOINTS=regional
+    - aws sts get-caller-identity --endpoint-url $epurl
+    - json_out=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id_prod}:role/${requested_role_prod}" --role-session-name "$session_name" --endpoint-url $epurl)
+    - aws_access_key_id=$(echo "$json_out" | jq -r ".Credentials.AccessKeyId")
+    - aws_secret_access_key_id=$(echo "$json_out" | jq -r ".Credentials.SecretAccessKey")
+    - aws_session_token=$(echo "$json_out" | jq -r ".Credentials.SessionToken")
+    - export AWS_ACCESS_KEY_ID="$aws_access_key_id"
+    - export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+    - export AWS_SESSION_TOKEN="$aws_session_token"
+    - echo "AWS_ACCESS_KEY_ID"="$AWS_ACCESS_KEY_ID">key.json
+    - echo "AWS_SECRET_ACCESS_KEY"="$AWS_SECRET_ACCESS_KEY">>key.json
+    - echo "AWS_SESSION_TOKEN"="$AWS_SESSION_TOKEN">>key.json
+  artifacts:
+    paths:
+      - key.json
+  tags:
+    - gitlab-runner
+
+run_the_script_promote:
+  stage: run_script_promote
+  image: gitlab-runner/tags:latest
+  dependencies:
+    - aws_server_login
+  script:
+    - cat key.json
+    - aws --version
+    - echo Stage session
+    - export AWS_ACCESS_KEY_ID=$(cat key.json | grep AWS_ACCESS_KEY_ID | cut -d = -f2)
+    - export AWS_SECRET_ACCESS_KEY=$(cat key.json| grep AWS_SECRET_ACCESS_KEY | cut -d = -f2)
+    - export AWS_SESSION_TOKEN=$(cat key.json| grep AWS_SESSION_TOKEN | cut -d = -f2)
+    - echo $AWS_ACCESS_KEY_ID
+    - echo $AWS_SECRET_ACCESS_KEY
+    - echo $AWS_SESSION_TOKEN
+    - session-manager-plugin --version
+    - aws ssm send-command --targets "Key=tag:Name,Values=ec2-machine-name" --document-name "AWS-RunShellScript" --comment "Deployment" --parameters commands="aws s3 cp s3://bucket-name/$Folder_Name" /users/abhi/$Folder_Name --recursive" --output-text
+  tags:
+    - gitlab-runner
