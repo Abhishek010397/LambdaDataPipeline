@@ -78,4 +78,4 @@ def lambda_handler(event, context):
         print(e)
         
         
- ##Remember to Increase the Lam,bda Basic Execution Time to let's say 10 mins,as there are multiple file transfer b/w several a/c's.
+ ##Remember to Increase the Lambda Basic Execution Time to let's say 10 mins,as there are multiple file transfer b/w several a/c's.
