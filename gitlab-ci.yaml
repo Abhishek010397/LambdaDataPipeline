@@ -6,3 +6,5 @@ pipeline_execution:
   image: gitlab-runner-image/tag:latest
   script:
     - curl -X POST -F token=$TOKEN -F ref=$REF "variables[S3_Upload]=$variable"  https://gitlab.com/api/v4/projects/10098/trigger/pipeline 
+  tags:
+    - gitlab-runner
