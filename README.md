@@ -139,10 +139,10 @@ Attaching SNS topic for S3 Bucket Role:-
                    "ArnLike": {
                      "aws:SourceArn": "arn:aws:s3:::lambdabucket-cerebrone"
                   }
-               }
-             }
-           ]
+            }
          }
+      ]
+    }
 	  
 
 Create a Lambda function as :-
