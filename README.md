@@ -121,7 +121,28 @@ The Bucket policy set up in the source AWS account. Do NOT forget to change the 
 		}
 	]
 }
-            
+Attaching SNS topic for S3 Bucket Role:-
+          
+	  {
+             "Version": "2012-10-17",
+             "Id": "s3EventSNS",
+             "Statement": [
+               {
+                 "Sid": "s3EventSNSNotification",
+                 "Effect": "Allow",
+                 "Principal": "*",
+                 "Action": "sns:Publish",
+                 "Resource": "arn:aws:sns:us-east-1:a/c-no.:my_sns",
+                 "Condition": {
+                   "ArnLike": {
+                     "aws:SourceArn": "arn:aws:s3:::lambdabucket-cerebrone"
+                  }
+                }
+              }
+             ]
+            }
+	  
+
 Create a Lambda function as :-
 
      Give A Name To The Lambda Function.
