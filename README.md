@@ -120,7 +120,9 @@ The Bucket policy set up in the source AWS account. Do NOT forget to change the 
 			"NotResource": "arn:aws:s3:::bucket-name/*.extensions-to-be-allowed"
 		}
 	]
-}
+    }
+       
+       
 Attaching SNS topic for S3 Bucket Role:-
           
 	  {
