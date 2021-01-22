@@ -137,7 +137,7 @@ Attaching SNS topic for S3 Bucket Role:-
                  "Resource": "arn:aws:sns:us-east-1:a/c-no.:my_sns",
                  "Condition": {
                    "ArnLike": {
-                     "aws:SourceArn": "arn:aws:s3:::lambdabucket-cerebrone"
+                     "aws:SourceArn": "arn:aws:s3:::s3-bucket-name"
                   }
             }
          }
