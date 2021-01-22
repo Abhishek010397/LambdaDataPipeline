@@ -79,3 +79,13 @@ def lambda_handler(event, context):
         
         
  ##Remember to Increase the Lambda Basic Execution Time to let's say 10 mins,as there are multiple file transfer b/w several a/c's.
+## Adding SNS Topic To trigger Lambda Function
+def lambda_handler(event, context):
+    try:
+        key =json.loads(event['Records'][0]['Sns']['Message'])
+        myfile =key['Records'][0]['s3']['object']['key']
+        print(myfile)
+        download_s3_file(myfile)
+        upload_s3_file(myfile)
+    except Exception as e:
+        print(e)
