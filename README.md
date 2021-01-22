@@ -349,4 +349,4 @@ To run Shell-Script as a Cron job in Linux Machine:
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
-![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Architecture.png)
+![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Data.png)
