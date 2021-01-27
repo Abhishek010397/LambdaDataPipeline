@@ -69,13 +69,19 @@ def upload_s3_file(myfile):
 
 def lambda_handler(event, context):
     try:
+        sns = boto3.client('sns')
         print(event)
         myfile = event['Records'][0]['s3']['object']['key']
         print(myfile)
+        response = sns.publish(
+            TopicArn ='arn:aws:sns:us-east-1:a/c number:sns_name',
+            Message = myfile,
+            )
         download_s3_file(myfile)
         upload_s3_file(myfile)
     except Exception as e:
         print(e)
+
         
         
  ##Remember to Increase the Lambda Basic Execution Time to let's say 10 mins,as there are multiple file transfer b/w several a/c's.
