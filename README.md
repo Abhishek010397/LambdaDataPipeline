@@ -190,8 +190,25 @@ Policies:-
                 }
             ]
         }
-    
-3. Create An Inline Policy:-
+ 
+ 
+ 
+3. SNS Publish Policy For Lambda:-
+
+        {
+           "Version": "2012-10-17",
+           "Statement": [
+               {
+                 "Sid": "VisualEditor0",
+                 "Effect": "Allow",
+                 "Action": "sns:Publish",
+                 "Resource": "arn:aws:sns:*:680763698946:*"
+               }
+             ]
+           }
+
+
+4. Create An Inline Policy:-
                   
         {
                 "Version": "2012-10-17",
@@ -349,4 +366,4 @@ To run Shell-Script as a Cron job in Linux Machine:
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
-![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Data.png)
+![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Architecture.png)
