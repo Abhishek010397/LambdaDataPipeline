@@ -36,6 +36,20 @@ def upload_s3_file(myfile):
     s3_dest_dev.put_object(Bucket=DEV_DST_BUCKET_NAME, Key=(folder_name+'/'))
     s3_dest_dev.upload_file(
         '/tmp/'+ffile, DEV_DST_BUCKET_NAME, folder_name+'/'+ffile)
+    #To trigger SNS Message  only Once Logic
+    objs = boto3.client('s3').list_objects_v2(Bucket=DEV_DST_BUCKET_NAME,Prefix=folder_name)
+    message = 'List of Objects \n'
+    fileCount = objs['KeyCount']
+    print(fileCount)
+    if fileCount == 11:
+        for object in objs['Contents']:
+            list = []
+            list.append(object['Key'])
+            message = message + object['Key'] + '\n'
+        response = sns.publish(
+            TopicArn ='arn:aws:sns:us-east-1:680763698946:my_sns',
+            Message = message
+            )
 
     # INT
     sts_result_int = sts.assume_role(
@@ -73,6 +87,7 @@ def lambda_handler(event, context):
         print(event)
         myfile = event['Records'][0]['s3']['object']['key']
         print(myfile)
+        #This Would trigger SNS Notifications on every event,say 10 events have 10 diff. notification,Not Good practice
         response = sns.publish(
             TopicArn ='arn:aws:sns:us-east-1:a/c number:sns_name',
             Message = myfile,
