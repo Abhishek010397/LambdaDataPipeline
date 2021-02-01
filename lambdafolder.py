@@ -47,7 +47,7 @@ def upload_s3_file(myfile):
             list.append(object['Key'])
             message = message + object['Key'] + '\n'
         response = sns.publish(
-            TopicArn ='arn:aws:sns:us-east-1:680763698946:my_sns',
+            TopicArn ='arn:aws:sns:us-east-1:a/c no.:my_sns',
             Message = message
             )
 
