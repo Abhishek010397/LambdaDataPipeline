@@ -43,8 +43,6 @@ def upload_s3_file(myfile):
     print(fileCount)
     if fileCount == 11:
         for object in objs['Contents']:
-            list = []
-            list.append(object['Key'])
             message = message + object['Key'] + '\n'
         response = sns.publish(
             TopicArn ='arn:aws:sns:us-east-1:a/c no.:my_sns',
