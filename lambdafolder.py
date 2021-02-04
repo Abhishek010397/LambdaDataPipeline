@@ -37,7 +37,7 @@ def upload_s3_file(myfile):
     s3_dest_dev.upload_file(
         '/tmp/'+ffile, DEV_DST_BUCKET_NAME, folder_name+'/'+ffile)
     #To trigger SNS Message  only Once Logic
-    objs = boto3.client('s3').list_objects_v2(Bucket=DEV_DST_BUCKET_NAME,Prefix=folder_name)
+    objs = s3_dest_dev.list_objects_v2(Bucket=DEV_DST_BUCKET_NAME,Prefix=folder_name)
     message = 'List of Objects \n'
     fileCount = objs['KeyCount']
     print(fileCount)
