@@ -373,6 +373,27 @@ Note
                                           sudo -i
 					  aws configure
 
+RDP into Windows Machine Using SSm(System Session Manager)
+
+Connect to the Instance Using AWS Console Managerwith SSM Enabled
+
+   1.Input password as a secure string: 
+                                          
+					  $Password = Read-Host -AsSecureString
+
+                                          New-LocalUser “User01” -Password $Password
+			
+   2. For Administrtive Access Add the USER to Administartive User Group:-
+   
+					  Add-LocalGroupMember -Group “Remote Desktop Users/Administrators” -Member “User01”
+
+
+   3.Terminate the session from the Console
+   
+   4.Use AWS SSM CLI Command to create a tunnel for doing RDP into the Instance
+   
+                                         aws ssm start-session --target <instance-id> --document-name AWS-StartPortForwardingSession --parameters                  "localPortNumber=55678,portNumber=3389"
+
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
 ![alt text](https://github.com/Abhishek010397/LambdaDataPipeline/blob/master/Architecture.png)
