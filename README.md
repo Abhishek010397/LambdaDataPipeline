@@ -285,6 +285,11 @@ EC2 Instance Profile Role
                 }
             ]
         }
+	
+	
+2.Attach SSMFullAccess to the Instance 
+
+
 
 Convert Python Script to .exe File
 
@@ -392,7 +397,7 @@ Connect to the Instance Using AWS Console Managerwith SSM Enabled
    
    4.Use AWS SSM CLI Command to create a tunnel for doing RDP into the Instance
    
-                                         aws ssm start-session --target <instance-id> --document-name AWS-StartPortForwardingSession --parameters                  "localPortNumber=55678,portNumber=3389"
+       aws ssm start-session --target <instance-id> --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=55678,portNumber=3389"
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
