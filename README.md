@@ -202,7 +202,7 @@ Policies:-
                  "Sid": "VisualEditor0",
                  "Effect": "Allow",
                  "Action": "sns:Publish",
-                 "Resource": "arn:aws:sns:*:680763698946:*"
+                 "Resource": "arn:aws:sns:*:a/c no.:*"
                }
              ]
            }
