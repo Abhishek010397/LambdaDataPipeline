@@ -363,6 +363,15 @@ To run Shell-Script as a Cron job in Linux Machine:
     3. Change the permission of the file as:- chmod +x filename.sh
     4. Next is to edit the crontab of Linux Machine as:- sudo crontab -e
     5. Provide the scheduling time as:- */5 * * * * path/to/filename.sh (5 denotes no. of minutes)
+    
+    
+Note
+
+    1. if you get a Network Connectivity issue while running aws cli command in EC2 Instances.
+    2. Check the Instance profile policy if they have mentioned policy attached for specific service requested.
+    3. Do aws configure in root section:-
+                                          sudo -i
+					  aws configure
 
 Data Pipeline Architecture Cross AWS S3 Accounts:
 
