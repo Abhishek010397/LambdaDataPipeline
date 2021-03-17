@@ -1,10 +1,283 @@
 stages:
-  - execute_pipeline
+    - login_to_prod 
+    - sync_to_s3 
+    - prod_refresh_api 
+    - login_to_dev 
+    - sync_to_machine 
+    - dev_refresh_api 
+    - login_to_int 
+    - int_s3_folder_check 
+    - int_promote_folders 
+    - int_refresh_api 
+    - login_to_test 
+    - test_s3_folder_check 
+    - test_promote_folders 
+    - test_refresh_api 
 
-pipeline_execution:
-  stage: execute_pipeline
-  image: gitlab-runner-image/tag:latest
-  script:
-    - curl -X POST -F token=$TOKEN -F ref=$REF "variables[S3_Upload]=$variable"  https://gitlab.com/api/v4/projects/10098/trigger/pipeline 
-  tags:
-    - gitlab-runner
+login_to_prod_server:
+    image: runner-image/tags:latest
+    stage: login_to_prod
+    script:
+        - pip install awscli
+        - export AWS_DEFAULT_REGION
+        - AWS_STS_REGIONAL_ENDPOINTS=regional
+        - export AWS_STS_REGIONAL_ENDPOINTS=regional
+        - aws sts get-caller-identity --endpoint-url $epurl
+        - json_out=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id_prod}:role/${requested_role_prod}" --role-session-name "$session_name" --endpoint-url $epurl)
+        - aws_access_key_id=$(echo "$json_out" | jq -r ".Credentials.AccessKeyId")
+        - aws_secret_access_key_id=$(echo "$json_out" | jq -r ".Credentials.SecretAccessKey")
+        - aws_session_token=$(echo "$json_out" | jq -r ".Credentials.SessionToken")
+        - export AWS_ACCESS_KEY_ID="$aws_access_key_id"
+        - export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+        - export AWS_SESSION_TOKEN="$aws_session_token"
+        - echo "AWS_ACCESS_KEY_ID"="$AWS_ACCESS_KEY_ID">key.json
+        - echo "AWS_SECRET_ACCESS_KEY"="$AWS_SECRET_ACCESS_KEY">>key.json
+        - echo "AWS_SESSION_TOKEN"="$AWS_SESSION_TOKEN">>key.json
+    artifacts:
+        paths:
+             - key.json
+    tags:
+         - gitlab-runner
+
+run_the_script_push:
+    stage: sync_to_s3
+    image: gitlab-runner/tags:latest
+    dependencies:
+         - login_to_prod_server
+    script:
+        - cat key.json
+        - aws --version
+        - echo Stage session
+        - export AWS_ACCESS_KEY_ID=$(cat key.json | grep AWS_ACCESS_KEY_ID | cut -d = -f2)
+        - export AWS_SECRET_ACCESS_KEY=$(cat key.json| grep AWS_SECRET_ACCESS_KEY | cut -d = -f2)
+        - export AWS_SESSION_TOKEN=$(cat key.json| grep AWS_SESSION_TOKEN | cut -d = -f2)
+        - echo $AWS_ACCESS_KEY_ID
+        - echo $AWS_SECRET_ACCESS_KEY
+        - echo $AWS_SESSION_TOKEN
+        - session-manager-plugin --version
+        - aws ssm send-command --targets "Key=tag:Name,Values=ec2-machine-name" --document-name "AWS-RunShellScript" --comment "Deployment" --parameters commands="cd /users/abhi/ && sh scripts.sh " --output-text
+    tags:
+        - gitlab-runner
+
+prod_refresh_api: 
+     stage: prod_refresh_api 
+     image: artifactory.global.dish.com/wireless-docker-dey-local/jtbouse/aws-cli:latest 
+     script: 
+         - export AWS_ACCESS_KEY_ID=$(cat key.json I grep AWS_ACCESS_KEY_ID I cut -d = -f2) 
+         - export AWS_SECRET_ACCESS_KEY=$(cat key.json I grep AWS_SECRET_ACCESS_KEY I cut -d = -f2) 
+         - export AWS_SESSION_TOKEN=$(cat key.json I grep AWS_SESSION_TOKEN I cut -d = -f2) 
+         - >
+           url=$(curl -vvy -X POST 
+           --header 'Content-Type: application/json-patch+json' 
+           --header 'Accept: application/XMC -d '{"target": "/var/data/FOLDER_NAME"}' 
+           'https://catalogservices.hansen-catalog-prod.aws.dishcloud.io/api/manage/refreshfromlocaldatastore') 
+     tags: 
+         - wireless-grouprunner-cicd 
+
+login_to_dev_server:
+    image: runner-image/tags:latest
+    stage: login_to_dev
+    script:
+        - pip install awscli
+        - export AWS_DEFAULT_REGION
+        - AWS_STS_REGIONAL_ENDPOINTS=regional
+        - export AWS_STS_REGIONAL_ENDPOINTS=regional
+        - aws sts get-caller-identity --endpoint-url $epurl
+        - json_out=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id_prod}:role/${requested_role_prod}" --role-session-name "$session_name" --endpoint-url $epurl)
+        - aws_access_key_id=$(echo "$json_out" | jq -r ".Credentials.AccessKeyId")
+        - aws_secret_access_key_id=$(echo "$json_out" | jq -r ".Credentials.SecretAccessKey")
+        - aws_session_token=$(echo "$json_out" | jq -r ".Credentials.SessionToken")
+        - export AWS_ACCESS_KEY_ID="$aws_access_key_id"
+        - export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+        - export AWS_SESSION_TOKEN="$aws_session_token"
+        - echo "AWS_ACCESS_KEY_ID"="$AWS_ACCESS_KEY_ID">key.json
+        - echo "AWS_SECRET_ACCESS_KEY"="$AWS_SECRET_ACCESS_KEY">>key.json
+        - echo "AWS_SESSION_TOKEN"="$AWS_SESSION_TOKEN">>key.json
+    artifacts:
+        paths:
+             - key.json
+    tags:
+         - gitlab-runner
+
+execute_the_script_push:
+    stage: sync_to_machine
+    image: gitlab-runner/tags:latest
+    dependencies:
+         - login_to_dev_server
+    script:
+        - cat key.json
+        - aws --version
+        - echo Stage session
+        - export AWS_ACCESS_KEY_ID=$(cat key.json | grep AWS_ACCESS_KEY_ID | cut -d = -f2)
+        - export AWS_SECRET_ACCESS_KEY=$(cat key.json| grep AWS_SECRET_ACCESS_KEY | cut -d = -f2)
+        - export AWS_SESSION_TOKEN=$(cat key.json| grep AWS_SESSION_TOKEN | cut -d = -f2)
+        - echo $AWS_ACCESS_KEY_ID
+        - echo $AWS_SECRET_ACCESS_KEY
+        - echo $AWS_SESSION_TOKEN
+        - session-manager-plugin --version
+        - aws ssm send-command --targets "Key=tag:Name,Values=ec2-machine-name" --document-name "AWS-RunShellScript" --comment "Deployment" --parameters commands="cd /users/abhi/ && sh scripts.sh " --output-text
+    tags:
+        - gitlab-runner
+
+dev_refresh_api: 
+     stage: dev_refresh_api 
+     image: gitlab-runner-image/tags
+     script: 
+         - export AWS_ACCESS_KEY_ID=$(cat key.json I grep AWS_ACCESS_KEY_ID I cut -d = -f2) 
+         - export AWS_SECRET_ACCESS_KEY=$(cat key.json I grep AWS_SECRET_ACCESS_KEY I cut -d = -f2) 
+         - export AWS_SESSION_TOKEN=$(cat key.json I grep AWS_SESSION_TOKEN I cut -d = -f2) 
+         - >
+           url=$(curl -vvv -X POST 
+           --header 'Content-Type: application/json-patch+json' 
+           --header 'Accept: application/XMC -d '{"target": "/var/data/FOLDER_NAME"}' 
+           'https://awsservices.route-dev.aws.io/api/manage/refreshfromdatastore') 
+     tags: 
+         - gitlab-runner
+  
+login_to_int_server:
+    image: runner-image/tags:latest
+    stage: login_to_int
+    script:
+        - pip install awscli
+        - export AWS_DEFAULT_REGION
+        - AWS_STS_REGIONAL_ENDPOINTS=regional
+        - export AWS_STS_REGIONAL_ENDPOINTS=regional
+        - aws sts get-caller-identity --endpoint-url $epurl
+        - json_out=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id_prod}:role/${requested_role_prod}" --role-session-name "$session_name" --endpoint-url $epurl)
+        - aws_access_key_id=$(echo "$json_out" | jq -r ".Credentials.AccessKeyId")
+        - aws_secret_access_key_id=$(echo "$json_out" | jq -r ".Credentials.SecretAccessKey")
+        - aws_session_token=$(echo "$json_out" | jq -r ".Credentials.SessionToken")
+        - export AWS_ACCESS_KEY_ID="$aws_access_key_id"
+        - export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+        - export AWS_SESSION_TOKEN="$aws_session_token"
+        - echo "AWS_ACCESS_KEY_ID"="$AWS_ACCESS_KEY_ID">key.json
+        - echo "AWS_SECRET_ACCESS_KEY"="$AWS_SECRET_ACCESS_KEY">>key.json
+        - echo "AWS_SESSION_TOKEN"="$AWS_SESSION_TOKEN">>key.json
+    artifacts:
+        paths:
+             - key.json
+    tags:
+         - gitlab-runner
+
+
+s3_folder_status_check: 
+     stage: int_s3_folder_check 
+     image: gitlab-runner-image/tags
+     dependencies: 
+          - login_to_int_server 
+     script: 
+        - export AWS_ACCESS_KEY_ID=$(Cat key.json | grep AWS_ACCESS_KEY_ID 1 cut -d = -f2) 
+        - export AWS_SECRET_ACCESS_KEY=$(cat key.json | grep AWS_SECRET_ACCESS_KEY 1 cut -d = f2)
+        - export AWS_SESSION_TOKEN=$(cat key.json | grep AWS_SESSION_TOKEN 1 cut -d = -f2) 
+        - latest=$(aws s3 Is s3://bucket-name | grep $FOLDER_NAME | awk 'NR==1 {print $2}') 
+        - echo $latest 
+     tags: 
+         - gitlab-runner
+     rules: 
+         - if: $ENV == 'INT' 
+
+folder_promotion_int: 
+    stage: int_promote_folders 
+    image: gitlab-runner-image/tags
+    dependencies: 
+         - login_to_int_server 
+    script: 
+        - export AWS_ACCESS_KEY_ID=$(cat key.json | grep AWS_ACCESS_KEY_ID 1 cut -d = -f2) 
+        - export AWS_SEORET_ACCESS_KEY=$(cat key.json | grep AWS_SECRET_ACCESS_KEY 1 cut -d = -f2) 
+        - export AWS_SESSION_TOKEN=$(cat key.json | grep AWS_SESSION_TOKEN 1 cut -d = -f2) 
+        - aws ssm send-command --targets "Key.tag:Name,Values=Instance-Tag-Name" --document-name "AWS-RunShellScript --comment "Deployment" --parameters commands="aws s3 cp s3://bucket-name/$FOLDER_NAME  /path_to_dir  --recursive " --output-text 
+    tags: 
+        - gitlab-runner
+    rules:
+        - if: $ENV == 'INT'
+
+int_refresh_api_stage: 
+     stage: int_refresh_api 
+     image: gitlab-runner-image/tags
+     script: 
+         - export AWS_ACCESS_KEY_ID=$(cat key.json I grep AWS_ACCESS_KEY_ID I cut -d = -f2) 
+         - export AWS_SECRET_ACCESS_KEY=$(cat key.json I grep AWS_SECRET_ACCESS_KEY I cut -d = -f2) 
+         - export AWS_SESSION_TOKEN=$(cat key.json I grep AWS_SESSION_TOKEN I cut -d = -f2) 
+         - >
+           url=$(curl -vvy -X POST 
+           --header 'Content-Type: application/json-patch+json' 
+           --header 'Accept: application/XMC -d '{"target": "/var/data/FOLDER_NAME"}' 
+           'https://awsservices.route-int.aws.io/api/manage/refreshfromdatastore') 
+     tags: 
+         - gitlab-runner
+
+
+login_to_test_server:
+    image: runner-image/tags:latest
+    stage: login_to_test
+    script:
+        - pip install awscli
+        - export AWS_DEFAULT_REGION
+        - AWS_STS_REGIONAL_ENDPOINTS=regional
+        - export AWS_STS_REGIONAL_ENDPOINTS=regional
+        - aws sts get-caller-identity --endpoint-url $epurl
+        - json_out=$(aws sts assume-role --role-arn "arn:aws:iam::${account_id_prod}:role/${requested_role_prod}" --role-session-name "$session_name" --endpoint-url $epurl)
+        - aws_access_key_id=$(echo "$json_out" | jq -r ".Credentials.AccessKeyId")
+        - aws_secret_access_key_id=$(echo "$json_out" | jq -r ".Credentials.SecretAccessKey")
+        - aws_session_token=$(echo "$json_out" | jq -r ".Credentials.SessionToken")
+        - export AWS_ACCESS_KEY_ID="$aws_access_key_id"
+        - export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+        - export AWS_SESSION_TOKEN="$aws_session_token"
+        - echo "AWS_ACCESS_KEY_ID"="$AWS_ACCESS_KEY_ID">key.json
+        - echo "AWS_SECRET_ACCESS_KEY"="$AWS_SECRET_ACCESS_KEY">>key.json
+        - echo "AWS_SESSION_TOKEN"="$AWS_SESSION_TOKEN">>key.json
+    artifacts:
+        paths:
+             - key.json
+    tags:
+         - gitlab-runner
+
+
+test_s3_folder_status_check: 
+     stage: test_s3_folder_check 
+     image: gitlab-runner-image/tags
+     dependencies: 
+          - login_to_test_server 
+     script: 
+        - export AWS_ACCESS_KEY_ID=$(Cat key.json | grep AWS_ACCESS_KEY_ID 1 cut -d = -f2) 
+        - export AWS_SECRET_ACCESS_KEY=$(cat key.json | grep AWS_SECRET_ACCESS_KEY 1 cut -d = f2)
+        - export AWS_SESSION_TOKEN=$(cat key.json | grep AWS_SESSION_TOKEN 1 cut -d = -f2) 
+        - latest=$(aws s3 Is s3://bucket-name | grep $FOLDER_NAME | awk 'NR==1 {print $2}') 
+        - echo $latest 
+     tags: 
+         - gitlab-runner
+     rules: 
+         - if: $ENV == 'TEST' 
+
+folder_promotion_test: 
+    stage: test_promote_folders 
+    image: gitlab-runner-image/tags
+    dependencies: 
+         - login_to_test_server 
+    script: 
+        - export AWS_ACCESS_KEY_ID=$(cat key.json | grep AWS_ACCESS_KEY_ID 1 cut -d = -f2) 
+        - export AWS_SEORET_ACCESS_KEY=$(cat key.json | grep AWS_SECRET_ACCESS_KEY 1 cut -d = -f2) 
+        - export AWS_SESSION_TOKEN=$(cat key.json | grep AWS_SESSION_TOKEN 1 cut -d = -f2) 
+        - aws ssm send-command --targets "Key.tag:Name,Values.Instance-Tag-Name" --document-name "AWS-RunShellScript --comment "Deployment" --parameters commands="aws s3 cp s3://bucket-name/$FOLDER_NAME  /path_to_dir  --recursive " --output-text 
+    tags: 
+        - gitlab-runner
+    rules:
+        - if: $ENV == 'TEST'
+
+test_refresh_api_stage: 
+     stage: test_refresh_api 
+     image: gitlab-runner-image/tags
+     script: 
+         - export AWS_ACCESS_KEY_ID=$(cat key.json I grep AWS_ACCESS_KEY_ID I cut -d = -f2) 
+         - export AWS_SECRET_ACCESS_KEY=$(cat key.json I grep AWS_SECRET_ACCESS_KEY I cut -d = -f2) 
+         - export AWS_SESSION_TOKEN=$(cat key.json I grep AWS_SESSION_TOKEN I cut -d = -f2) 
+         - >
+           url=$(curl -vvy -X POST 
+           --header 'Content-Type: application/json-patch+json' 
+           --header 'Accept: application/XMC -d '{"target": "/var/data/FOLDER_NAME"}' 
+           'https://awsservices.route-test.com.aws.io/api/manage/refreshfromdatastore') 
+     tags: 
+         - gitlab-runner
+
+     rules:
+         - if: $ENV == 'TEST'
