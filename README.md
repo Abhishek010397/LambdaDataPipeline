@@ -232,7 +232,6 @@ Attach a Assume-Role-Policy as:-
                         "Effect": "Allow",
                         "Principal": {
                         "Service": "lambda.amazonaws.com",
-                        "AWS": "arn:aws:iam::<<Dest-A/c-Number>>:role/<<Dest-A/c-Role-Name>>"
                     },
                     "Action": "sts:AssumeRole"
                     }
